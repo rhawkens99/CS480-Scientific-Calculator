@@ -1,4 +1,5 @@
 import { QMainWindow, QWidget, QLabel, FlexLayout, QPushButton, QIcon } from '@nodegui/nodegui';
+import { infixToPostfix } from './shuntingYard';
 import logo from '../assets/logox200.png';
 
 const win = new QMainWindow();
@@ -14,7 +15,11 @@ label.setObjectName("mylabel");
 label.setText("Hello");
 
 const button = new QPushButton();
-button.setIcon(new QIcon(logo));
+//button.setIcon(new QIcon(logo));
+button.setText("Press me!");
+button.addEventListener('clicked', () => {
+  infixToPostfix("a+b*(c^d-e)^[f+g*h]-i");
+})
 
 const label2 = new QLabel();
 label2.setText("World");
