@@ -18,16 +18,17 @@ const button = new QPushButton();
 //button.setIcon(new QIcon(logo));
 button.setText("Press me!");
 button.addEventListener('clicked', () => {
-  //evalPostfix("25 67 9 * 3 - + 5 9 3 / - +");
-  //infixToPostfix("25+(67*9-3)+[5-9/3]");
-  infixToPostfix("36+(-25*5)-72");
-  //evalPostfix("36 -25 5 * + 72 -")
+  //infixToPostfix("36+(-25*5)-72");
+  //evalPostfix("36 -25 5 * + 72 -");
+  //infixToPostfix("5^(2+2)+2^8-7");
+  evalPostfix("5 2 2 + ^ 2 8 ^ + 7 -");
   
 })
 const button2 = new QPushButton();
 button.setText("No, Press me!");
-button.addEventListener('clicked', () =>{
-  infixToPostfix("36+-25");
+button.addEventListener('clicked', () => {
+  //infixToPostfix("36+-25");
+  //evalPostfix("36 -25 +")
 })
 
 const label2 = new QLabel();

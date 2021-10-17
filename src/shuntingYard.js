@@ -115,6 +115,22 @@ export function evalPostfix(expression) {
         if (c == ' ')
             continue;
 
+        // if c is a negative sign, check if it is with a negative number
+        if (c == '-' && (expression[i + 1] >= '0' && expression[i + 1] <= '9')) {
+            let num = 0;
+            i++
+            c = expression[i]
+
+            // Following loop extracts the chars that make up the current number and converts it to an integer.
+            while (c >= '0' && c <= '9') {
+                num = num * 10 + (c - '0');
+                i++;
+                c = expression[i];
+            }
+            i--;
+            num = num * -1;
+            stack.push(num);
+        }
         // if c is a number, push it onto the stack. This ensures multi digit values are caught
         else if (c >= '0' && c <= '9') {
             let num = 0;
@@ -133,12 +149,10 @@ export function evalPostfix(expression) {
         else {
             let val1 = stack.pop();
             let val2 = stack.pop();
-            //console.log(val1);
-            //console.log(val2);
 
             // val2 is the first value to appear in the below expressions since in subtraction 
             // and division val2 is the first value.
-            // 200-100 => 200100- in postfix notation.
+            // 200-100 => 200 100 - in postfix notation.
             switch (c) {
                 // basic arithmetic
                 case '+':
@@ -155,6 +169,9 @@ export function evalPostfix(expression) {
 
                 case '*':
                     stack.push(val2 * val1);
+                
+                case '^':
+                    stack.push(Math.pow(val2, val1));
             }
         }
     }
