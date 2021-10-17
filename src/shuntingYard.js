@@ -1,4 +1,5 @@
-// Parts of the following file are from the website GeeksForGeeks. Some variable names are changed, but the logic is not my own.
+// Parts of the following file are from the website GeeksForGeeks. 
+// Some variable names are changed, but the logic is not my own.
 
 // function to set the precedence of an operator. 'c' is a single character
 function precedence(c) {
@@ -21,15 +22,38 @@ export function infixToPostfix(expression) {
 
     // loop through the expression character by character. 
     for (let i = 0; i < expression.length; i++) {
-        let c = expression.charAt(i);
+        let c = expression[i];
+
+        // if the first element is a '-', then a negative number will follow.
+        // always add first element to result
+        if (i == 0 /*&& c == '-'*/) {
+            result += c;
+            continue;            
+        }        
+
+        // if the previous element is an operator and current element is a '-',
+        // then a negative number will follow
+        let prev = expression[i - 1];
+        if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == '-') {
+            result += c;
+        }
 
         // if character is an operand, add to result.
-        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+        else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
             result += c;
+        }
 
         // if c is open parentheses or bracket, push it onto the stack
-        else if (c == '(' || c == '[' || c == '{')
+        else if (c == '(' || c == '[' || c == '{') {
             stack.push(c);
+                
+            // if next character after the parentheses is a '-', then a negative number will follow
+            i++;
+            if (expression[i] == '-')
+                result += expression[i];               
+            else
+                i--;
+        }
 
         // if c is a closed parentheses or bracket, pop from stack until the opened parentheses or bracket is found
         else if (c == ')') {
@@ -60,7 +84,6 @@ export function infixToPostfix(expression) {
         // then push c onto the stack
         else {
             result += ' ';
-
             while (stack.length != 0 && precedence(c) <= precedence(stack[stack.length - 1])) {
                 result += stack.pop() + ' ';
             }
@@ -83,9 +106,10 @@ export function evalPostfix(expression) {
     // stack and result string
     let stack = [];
 
-    // loop through the expression. If c is a number, push to stack. Else pop off the numbers associated with the operator and calculate
+    // loop through the expression. If c is a number, push to stack. 
+    // Else pop off the numbers associated with the operator and calculate
     for (let i = 0; i < expression.length; i++) {
-        let c = expression.charAt(i);
+        let c = expression[i];
 
         // space lets the program know that a new number or operator has been reached.
         if (c == ' ')
@@ -99,7 +123,7 @@ export function evalPostfix(expression) {
             while (c >= '0' && c <= '9') {
                 num = num * 10 + (c - '0');
                 i++;
-                c = expression.charAt(i);
+                c = expression[i];
             }
             i--;
             stack.push(num);
@@ -112,9 +136,8 @@ export function evalPostfix(expression) {
             //console.log(val1);
             //console.log(val2);
 
-            // NEED TO FIGURE OUT UNARY NEGATION (TURNING NUMBERS NEGATIVE)
-
-            // val2 is the first value to appear in the below expressions since in subtraction and division val2 is the first value.
+            // val2 is the first value to appear in the below expressions since in subtraction 
+            // and division val2 is the first value.
             // 200-100 => 200100- in postfix notation.
             switch (c) {
                 // basic arithmetic
