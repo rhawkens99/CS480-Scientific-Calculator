@@ -9,12 +9,15 @@ function precedence(c) {
         return 2;
     else if (c == '+' || c == '-')
         return 1;
+    else if (c == '(' || c == '{' || c == '[')
+        return -1;
+    else
+        return 4;
 
-    return -1;
+    //return -1;
 }
 
 // function to create the postfix notation of an expression. 's' is the expression we are converting and is a String.
-// will return a String for now for easy testing. May change this later in development based on needs.
 export function infixToPostfix(expression) {
     // stack and result string to be used.
     let stack = [];
@@ -25,11 +28,10 @@ export function infixToPostfix(expression) {
         let c = expression[i];
 
         // if the first element is a '-', then a negative number will follow.
-        // always add first element to result
-        if (i == 0 /*&& c == '-'*/) {
+        if (i == 0 && c == '-') {
             result += c;
-            continue;            
-        }        
+            continue;
+        }
 
         // if the previous element is an operator and current element is a '-',
         // then a negative number will follow
@@ -38,19 +40,32 @@ export function infixToPostfix(expression) {
             result += c;
         }
 
-        // if character is an operand, add to result.
-        else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
+        // if character is a number, add to result.
+        else if (c >= '0' && c <= '9') {
             result += c;
+        }
+
+        // block to catch trig and log functions
+        else if ((c >= 'a' && c <= 'z') || (c <= 'A' && c >= 'Z')) {
+            let func = '';
+
+            while ((c >= 'a' && c <= 'z') || (c <= 'A' && c >= 'Z') && (i < expression.length)) {
+                func += c;
+                i++;
+                c = expression[i];
+            }
+            i--;
+            stack.push(func);
         }
 
         // if c is open parentheses or bracket, push it onto the stack
         else if (c == '(' || c == '[' || c == '{') {
             stack.push(c);
-                
+
             // if next character after the parentheses is a '-', then a negative number will follow
             i++;
             if (expression[i] == '-')
-                result += expression[i];               
+                result += expression[i];
             else
                 i--;
         }
@@ -84,11 +99,13 @@ export function infixToPostfix(expression) {
         // then push c onto the stack
         else {
             result += ' ';
+
             while (stack.length != 0 && precedence(c) <= precedence(stack[stack.length - 1])) {
                 result += stack.pop() + ' ';
             }
             stack.push(c);
         }
+        //console.log(result);
     }
 
     // pop all remaining elements
@@ -99,7 +116,7 @@ export function infixToPostfix(expression) {
 
     console.log(result);
     return result;
-}
+} // end infixtoPostfix
 
 // function to evaluate the expression in postfix notation. Takes in a String
 export function evalPostfix(expression) {
@@ -145,33 +162,110 @@ export function evalPostfix(expression) {
             stack.push(num);
         }
 
-        // If c is an operator, pop the last two elements and perform the proper calculation.
+        // If c is an operator, perform the proper calculation. If c corresponds to a trig or log function, pop off only 1 value.
+        // otherwise, pop off two values.
         else {
-            let val1 = stack.pop();
-            let val2 = stack.pop();
+            // trig and log block
+            if ((c >= 'a' && c <= 'z') || (c <= 'A' && c >= 'Z')) {
+                let func = '';
 
-            // val2 is the first value to appear in the below expressions since in subtraction 
-            // and division val2 is the first value.
-            // 200-100 => 200 100 - in postfix notation.
-            switch (c) {
-                // basic arithmetic
-                case '+':
-                    stack.push(val2 + val1);
-                    break;
+                while ((c >= 'a' && c <= 'z') || (c <= 'A' && c >= 'Z') && (i < expression.length)) {
+                    func += c;
+                    i++;
+                    c = expression[i];
+                }
 
-                case '-':
-                    stack.push(val2 - val1);
-                    break;
+                i--;
+                let val = stack.pop();
 
-                case '/':
-                    stack.push(parseInt(val2 / val1, 10));
-                    break;
+                switch (func) {
+                    case 'sin':
+                        stack.push(Math.sin(val));
+                        break;
 
-                case '*':
-                    stack.push(val2 * val1);
-                
-                case '^':
-                    stack.push(Math.pow(val2, val1));
+                    case 'cos':
+                        stack.push(Math.cos(val));
+                        break;
+
+                    case 'tan':
+                        stack.push(Math.tan(val));
+                        break;
+
+                    case 'csc':
+                        stack.push(1 / (Math.sin(val)));
+                        break;
+
+                    case 'sec':
+                        stack.push(1 / (Math.cos(val)));
+                        break;
+
+                    case 'cot':
+                        stack.push(1 / (Math.tan(val)));
+                        break;
+
+                    case 'arcsin':
+                        console.log(val);
+                        stack.push(Math.asin(val));
+                        console.log(stack);
+                        break;
+
+                    case 'arccos':
+                        stack.push(Math.acos(val));
+                        break;
+
+                    case 'arctan':
+                        stack.push(Math.atan(val));
+                        break;
+
+                    case 'arccsc':
+                        stack.push(Math.asin(1 / val));
+                        break;
+
+                    case 'arcsec':
+                        stack.push(Math.cos(1 / val));
+                        break;
+
+                    case 'arccot':
+                        stack.push(Math.tan(1 / val));
+                        break;
+
+                    case 'log':
+                        stack.push(Math.log10(val));
+                        break;
+
+                    case 'ln':
+                        stack.push(Math.log(val));
+                        break;
+                }
+            }
+
+            // basic arithmetic block
+            else {
+                let val1 = stack.pop();
+                let val2 = stack.pop();
+
+                // val2 is the first value to appear in the below expressions since in subtraction 
+                // and division val2 is the first value.
+                // 200-100 => 200 100 - in postfix notation.
+                switch (c) {
+                    case '+':
+                        stack.push(val2 + val1);
+                        break;
+
+                    case '-':
+                        stack.push(val2 - val1);
+                        break;
+
+                    case '/':
+                        stack.push(parseInt(val2 / val1, 10));
+                        break;
+
+                    case '*':
+                        stack.push(val2 * val1);
+
+                    case '^':
+                        stack.push(Math.pow(val2, val1));
+                }
             }
         }
     }
@@ -179,4 +273,4 @@ export function evalPostfix(expression) {
     let result = stack.pop();
     console.log(result);
     return result;
-}
+} // end evalPostFix
