@@ -1,5 +1,5 @@
 // Parts of the following file are from the website GeeksForGeeks. 
-// Some variable names are changed, but the logic is not my own.
+// The logic for the basic arithmetic operators is from GeeksForGeeks. All other logic is my own.
 
 // function to set the precedence of an operator. 'c' is a single character
 function precedence(c) {
@@ -13,8 +13,6 @@ function precedence(c) {
         return -1;
     else
         return 4;
-
-    //return -1;
 }
 
 // function to create the postfix notation of an expression. 's' is the expression we are converting and is a String.
