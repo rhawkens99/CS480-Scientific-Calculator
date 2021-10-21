@@ -26,8 +26,10 @@ export function infixToPostfix(expression) {
         let c = expression[i];
 
         // if the first element is a '-', then a negative number will follow.
+        // a character of n in the postfixed expression indicates unary negation
         if (i == 0 && c == '-') {
-            result += c;
+            //result += c;
+            result += 'n';
             continue;
         }
 
@@ -35,7 +37,8 @@ export function infixToPostfix(expression) {
         // then a negative number will follow
         let prev = expression[i - 1];
         if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == '-') {
-            result += c;
+            //result += c;
+            result += 'n';
         }
 
         // if character is a number, add to result.
@@ -62,10 +65,14 @@ export function infixToPostfix(expression) {
 
             // if next character after the parentheses is a '-', then a negative number will follow
             i++;
-            if (expression[i] == '-')
-                result += expression[i];
-            else
+            if (expression[i] == '-') {
+                //result += expression[i];
+                result += 'n';
+            }
+
+            else {
                 i--;
+            }
         }
 
         // if c is a closed parentheses or bracket, pop from stack until the opened parentheses or bracket is found
@@ -112,7 +119,7 @@ export function infixToPostfix(expression) {
         result += stack.pop();
     }
 
-    console.log(result);
+    //console.log(result);
     return result;
 } // end infixtoPostfix
 
@@ -130,6 +137,41 @@ export function evalPostfix(expression) {
         if (c == ' ')
             continue;
 
+        // if c is an 'n', then extract the negative number properly
+        if (c == 'n') {
+            let num = 0;
+            i++;
+            c = expression[i];
+            let negative = true;
+
+            // loops through extracting numbers. Also accounts for multiple presses of the sign button and will present the correct number
+            //while ((c >= '0' && c <= '9') || c == 'n') {
+            while (c != ' ') {
+                if (c == 'n') {
+                    negative = !negative;
+                }
+
+                else {
+                    num = num * 10 + (c - '0');
+                }
+
+                i++;
+                c = expression[i];
+            }
+
+            i--;
+            if (negative) {
+                num = num * -1;
+                stack.push(num);
+            }
+
+            else {
+                stack.push(num);
+            }
+
+
+        }
+        /*
         // if c is a negative sign, check if it is with a negative number
         if (c == '-' && (expression[i + 1] >= '0' && expression[i + 1] <= '9')) {
             let num = 0;
@@ -145,7 +187,7 @@ export function evalPostfix(expression) {
             i--;
             num = num * -1;
             stack.push(num);
-        }
+        }*/
         // if c is a number, push it onto the stack. This ensures multi digit values are caught
         else if (c >= '0' && c <= '9') {
             let num = 0;
@@ -269,6 +311,6 @@ export function evalPostfix(expression) {
     }
 
     let result = stack.pop();
-    console.log(result);
+    //console.log(result);
     return result;
 } // end evalPostFix

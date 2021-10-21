@@ -1,4 +1,6 @@
-import { QMainWindow, QWidget, FlexLayout, QPushButton, QLabel, QTextEdit, QGridLayout, } from '@nodegui/nodegui';
+import { QMainWindow, QWidget, FlexLayout, QPushButton, QLabel, } from '@nodegui/nodegui';
+//import { updateDisplay } from './calcFunctions';
+import { infixToPostfix, evalPostfix } from './shuntingYard';
 
 // buttons
 const zero = new QPushButton();
@@ -99,62 +101,60 @@ openCurlyBrace.setText('{');
 closeCurlyBrace.setText('}');
 
 // add functionality to the buttons
-zero.addEventListener('clicked', () => console.log('0'));
-one.addEventListener('clicked', () => console.log('1'));
-two.addEventListener('clicked', () => console.log('2'));
-three.addEventListener('clicked', () => console.log('3'));
-four.addEventListener('clicked', () => console.log('4'));
-five.addEventListener('clicked', () => console.log('5'));
-six.addEventListener('clicked', () => console.log('6'));
-seven.addEventListener('clicked', () => console.log('7'));
-eight.addEventListener('clicked', () => console.log('8'));
-nine.addEventListener('clicked', () => console.log('9'));
+zero.addEventListener('clicked', () => updateDisplay('0'));
+one.addEventListener('clicked', () => updateDisplay('1'));
+two.addEventListener('clicked', () => updateDisplay('2'));
+three.addEventListener('clicked', () => updateDisplay('3'));
+four.addEventListener('clicked', () => updateDisplay('4'));
+five.addEventListener('clicked', () => updateDisplay('5'));
+six.addEventListener('clicked', () => updateDisplay('6'));
+seven.addEventListener('clicked', () => updateDisplay('7'));
+eight.addEventListener('clicked', () => updateDisplay('8'));
+nine.addEventListener('clicked', () => updateDisplay('9'));
 
-plus.addEventListener('clicked', () => console.log('+'));
-subtract.addEventListener('clicked', () => console.log('-'));
-times.addEventListener('clicked', () => console.log('*'));
-divide.addEventListener('clicked', () => console.log('/'));
-exponent.addEventListener('clicked', () => console.log('^'));
-sign.addEventListener('clicked', () => console.log('+/-'));
-decimal.addEventListener('clicked', () => console.log('.'));
+plus.addEventListener('clicked', () => updateDisplay('+'));
+subtract.addEventListener('clicked', () => updateDisplay('-'));
+times.addEventListener('clicked', () => updateDisplay('*'));
+divide.addEventListener('clicked', () => updateDisplay('/'));
+exponent.addEventListener('clicked', () => updateDisplay('^'));
+sign.addEventListener('clicked', () => updateDisplay('+/-'));
+decimal.addEventListener('clicked', () => updateDisplay('.'));
 
-equals.addEventListener('clicked', () => console.log('='));
-clear.addEventListener('clicked', () => console.log('C'));
-backspace.addEventListener('clicked', () => console.log('<-'));
+equals.addEventListener('clicked', () => updateDisplay('='));
+clear.addEventListener('clicked', () => updateDisplay('C'));
+backspace.addEventListener('clicked', () => updateDisplay('<-'));
 
-pi.addEventListener('clicked', () => console.log('pi'));
-sin.addEventListener('clicked', () => console.log('sin'));
-cos.addEventListener('clicked', () => console.log('cos'));
-tan.addEventListener('clicked', () => console.log('tan'));
-csc.addEventListener('clicked', () => console.log('csc'));
-sec.addEventListener('clicked', () => console.log('sec'));
-cot.addEventListener('clicked', () => console.log('cot'));
-arcsin.addEventListener('clicked', () => console.log('arcsin'));
-arccos.addEventListener('clicked', () => console.log('arccos'));
-arctan.addEventListener('clicked', () => console.log('arctan'));
-arccsc.addEventListener('clicked', () => console.log('arccsc'));
-arcsec.addEventListener('clicked', () => console.log('arcsec'));
-arccot.addEventListener('clicked', () => console.log('arccot'));
-degToRad.addEventListener('clicked', () => console.log('Degrees'));
+pi.addEventListener('clicked', () => updateDisplay('pi'));
+sin.addEventListener('clicked', () => updateDisplay('sin'));
+cos.addEventListener('clicked', () => updateDisplay('cos'));
+tan.addEventListener('clicked', () => updateDisplay('tan'));
+csc.addEventListener('clicked', () => updateDisplay('csc'));
+sec.addEventListener('clicked', () => updateDisplay('sec'));
+cot.addEventListener('clicked', () => updateDisplay('cot'));
+arcsin.addEventListener('clicked', () => updateDisplay('arcsin'));
+arccos.addEventListener('clicked', () => updateDisplay('arccos'));
+arctan.addEventListener('clicked', () => updateDisplay('arctan'));
+arccsc.addEventListener('clicked', () => updateDisplay('arccsc'));
+arcsec.addEventListener('clicked', () => updateDisplay('arcsec'));
+arccot.addEventListener('clicked', () => updateDisplay('arccot'));
+degToRad.addEventListener('clicked', () => updateDisplay('Degrees'));
 
-ln.addEventListener('clicked', () => console.log('ln'));
-log.addEventListener('clicked', () => console.log('log10'));
+ln.addEventListener('clicked', () => updateDisplay('ln'));
+log.addEventListener('clicked', () => updateDisplay('log10'));
 
-openParentheses.addEventListener('clicked', () => console.log('('));
-closeParentheses.addEventListener('clicked', () => console.log(')'));
-openSquareBrackets.addEventListener('clicked', () => console.log('['));
-closeSquareBrackets.addEventListener('clicked', () => console.log(']'));
-openCurlyBrace.addEventListener('clicked', () => console.log('{'));
-closeCurlyBrace.addEventListener('clicked', () => console.log('}'));
+openParentheses.addEventListener('clicked', () => updateDisplay('('));
+closeParentheses.addEventListener('clicked', () => updateDisplay(')'));
+openSquareBrackets.addEventListener('clicked', () => updateDisplay('['));
+closeSquareBrackets.addEventListener('clicked', () => updateDisplay(']'));
+openCurlyBrace.addEventListener('clicked', () => updateDisplay('{'));
+closeCurlyBrace.addEventListener('clicked', () => updateDisplay('}'));
 
 // add to window
 const win = new QMainWindow();
 win.setWindowTitle("Scientific Calculator");
-
-//const screen = new QTextEdit();
-//screen.setPlaceholderText("The Calculator Screen!");
 const screen = new QLabel();
-screen.setText("The Calculator Screen!");
+//screen.setText("The Calculator Screen!");
+screen.setText("");
 
 // create widget for screen and widget for buttons. Then place the buttons inside of the button widget
 
@@ -179,17 +179,11 @@ const buttonDisplayLayout = new FlexLayout();
 buttonDisplay.setObjectName("buttonDisplay");
 buttonDisplay.setLayout(buttonDisplayLayout);
 
+// buttons are added by row
 const row1 = new QWidget();
 const row1Layout = new FlexLayout();
 row1.setObjectName("row1");
 row1.setLayout(row1Layout);
-
-/*row1Layout.addWidget(zero);
-row1Layout.addWidget(one);
-row1Layout.addWidget(two);
-row1Layout.addWidget(three);
-row1Layout.addWidget(four);
-row1Layout.addWidget(five);*/
 
 row1Layout.addWidget(sin);
 row1Layout.addWidget(arcsin);
@@ -203,11 +197,6 @@ const row2Layout = new FlexLayout();
 row2.setObjectName("row2");
 row2.setLayout(row2Layout);
 
-/*row2Layout.addWidget(six);
-row2Layout.addWidget(seven);
-row2Layout.addWidget(eight);
-row2Layout.addWidget(nine);*/
-
 row2Layout.addWidget(cos);
 row2Layout.addWidget(arccos);
 row2Layout.addWidget(degToRad);
@@ -219,13 +208,6 @@ const row3 = new QWidget();
 const row3Layout = new FlexLayout();
 row3.setObjectName("row3");
 row3.setLayout(row3Layout);
-
-/*row3Layout.addWidget(plus);
-row3Layout.addWidget(subtract);
-row3Layout.addWidget(times);
-row3Layout.addWidget(divide);
-row3Layout.addWidget(sign);
-row3Layout.addWidget(equals);*/
 
 row3Layout.addWidget(tan);
 row3Layout.addWidget(arctan);
@@ -307,61 +289,25 @@ buttonDisplayLayout.addWidget(row9);
 rootLayout.addWidget(buttonDisplay);
 
 /*
-const numberDisplay = new QWidget();
-numberDisplay.setObjectName("numberDisplay");
-const numberDisplayLayout = new FlexLayout();
-numberDisplay.setLayout(numberDisplayLayout);
+// TESTING BUTTON. REMOVE AFTER TESTING STUFF
+const button = new QPushButton();
+//button.setIcon(new QIcon(logo));
+button.setText("Press me!");
+button.addEventListener('clicked', () => {
+  //infixToPostfix("36+(-25*5)-72");
+  //evalPostfix("36 n25 5 * + 72 -");
+  //infixToPostfix("5^(2+2)+2^8-7");
+  //evalPostfix("5 2 2 + ^ 2 8 ^ + 7 -");
+  //infixToPostfix("sin(30)+cos(60)");
+  //evalPostfix("30 log 60 ln +");
+  //infixToPostfix("ln(56)+log(27)-sin(45/60)");
+  //infixToPostfix("36+-25");
+  //evalPostfix("36 n25 +")
+  //infixToPostfix('---36+25');
+  evalPostfix('nnnn36 25 +');
+})*/
 
-numberDisplayLayout.addWidget(zero);
-numberDisplayLayout.addWidget(one);
-numberDisplayLayout.addWidget(two);
-numberDisplayLayout.addWidget(three);
-numberDisplayLayout.addWidget(four);
-numberDisplayLayout.addWidget(five);
-numberDisplayLayout.addWidget(six);
-numberDisplayLayout.addWidget(seven);
-numberDisplayLayout.addWidget(eight);
-numberDisplayLayout.addWidget(nine);
-
-const operatorDisplay = new QWidget();
-operatorDisplay.setObjectName("operatorDisplay");
-const operatorDisplayLayout = new FlexLayout();
-operatorDisplay.setLayout(operatorDisplayLayout);
-
-operatorDisplayLayout.addWidget(plus);
-operatorDisplayLayout.addWidget(subtract);
-operatorDisplayLayout.addWidget(times);
-operatorDisplayLayout.addWidget(divide);
-operatorDisplayLayout.addWidget(sign);
-operatorDisplayLayout.addWidget(equals);
-operatorDisplayLayout.addWidget(clear);
-operatorDisplayLayout.addWidget(backspace);
-
-const functionDisplay = new QWidget();
-functionDisplay.setObjectName("functionDisplay");
-const functionDisplayLayout = new FlexLayout();
-functionDisplay.setLayout(functionDisplayLayout);
-
-functionDisplayLayout.addWidget(pi);
-functionDisplayLayout.addWidget(sin);
-functionDisplayLayout.addWidget(cos);
-functionDisplayLayout.addWidget(tan);
-functionDisplayLayout.addWidget(csc);
-functionDisplayLayout.addWidget(sec);
-functionDisplayLayout.addWidget(cot);
-functionDisplayLayout.addWidget(arcsin);
-functionDisplayLayout.addWidget(arccos);
-functionDisplayLayout.addWidget(arctan);
-functionDisplayLayout.addWidget(arccsc);
-functionDisplayLayout.addWidget(arcsec);
-functionDisplayLayout.addWidget(arccot);
-functionDisplayLayout.addWidget(degToRad);
-functionDisplayLayout.addWidget(ln);
-functionDisplayLayout.addWidget(log);
-
-buttonDisplay.layout.addWidget(numberDisplay);
-buttonDisplay.layout.addWidget(operatorDisplay);
-buttonDisplay.layout.addWidget(functionDisplay);*/
+rootLayout.addWidget(button);
 
 
 win.setStyleSheet(
@@ -376,6 +322,8 @@ win.setStyleSheet(
 
       #screenDisplay {
           flex: 1;
+          background-color: white;
+          width: '100%';
       }    
 
       #buttonDisplay {
@@ -391,74 +339,56 @@ win.setStyleSheet(
     `
 );
 
-/*win.setStyleSheet(
-  `
-      #myroot {
-        background-color: #009688;
-        height: '100%';
-        align-items: 'center';
-        justify-content: 'center';
-        flex: 1;
-      }
+let display = [];
+let userDisplay = '';
 
-      #screenDisplay {
-          flex: 1;
-      }
+// function that will update the equation on the display
+export function updateDisplay(input) {
+  if (input == '<-') {
+    display.pop();
+    userDisplay.slice(0, -1);
+  }
 
-      #numberDisplay {
-        flex: 1;
-        //flex-direction: row;
-        //background-color: yellow;
-        //margin-left: 50px;
-        //left: 60px;
-        //flex-wrap: wrap;
-      }
+  else if (input == 'C') {
+    display = [];
+    userDisplay = '';
+  }
 
-      #operatorDisplay {
-        flex: 1;
-      }
+  else if (input == '+/-') {
+    display.push('-');
+    userDisplay += '-';
+  }
 
-      #functionDisplay {
-        flex: 1;
-      }
-    `
-);*/
+  else if (input == '=') {
+    userDisplay = '';
+    submit(display);
+    display = [];
+
+  }
+
+  else {
+    display.push(input);
+    userDisplay += input;
+  }
+
+  //console.log(display);
+  screen.setText(userDisplay);
+}
+
+async function submit(equation) {
+  let expression = '';
+
+  for (let i = 0; i < equation.length; i++) {
+    expression += equation[i];
+  }
+
+  let postfix = infixToPostfix(expression);
+  userDisplay = evalPostfix(postfix);
+  screen.setText(userDisplay);
+  console.log(userDisplay);
+
+  //console.log(expression);
+}
+
 
 export { win };
-
-/*
-rootLayout.addWidget(screen);
-rootLayout.addWidget(zero);
-rootLayout.addWidget(one);
-rootLayout.addWidget(two);
-rootLayout.addWidget(three);
-rootLayout.addWidget(four);
-rootLayout.addWidget(five);
-rootLayout.addWidget(six);
-rootLayout.addWidget(seven);
-rootLayout.addWidget(eight);
-rootLayout.addWidget(nine);
-rootLayout.addWidget(plus);
-rootLayout.addWidget(subtract);
-rootLayout.addWidget(times);
-rootLayout.addWidget(divide);
-rootLayout.addWidget(sign);
-rootLayout.addWidget(equals);
-rootLayout.addWidget(clear);
-rootLayout.addWidget(backspace);
-rootLayout.addWidget(pi);
-rootLayout.addWidget(sin);
-rootLayout.addWidget(cos);
-rootLayout.addWidget(tan);
-rootLayout.addWidget(csc);
-rootLayout.addWidget(sec);
-rootLayout.addWidget(cot);
-rootLayout.addWidget(arcsin);
-rootLayout.addWidget(arccos);
-rootLayout.addWidget(arctan);
-rootLayout.addWidget(arccsc);
-rootLayout.addWidget(arcsec);
-rootLayout.addWidget(arccot);
-rootLayout.addWidget(degToRad);
-rootLayout.addWidget(ln);
-rootLayout.addWidget(log);*/
