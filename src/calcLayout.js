@@ -1,6 +1,5 @@
 import { QMainWindow, QWidget, FlexLayout, QPushButton, QLabel, } from '@nodegui/nodegui';
-//import { updateDisplay } from './calcFunctions';
-import { infixToPostfix, evalPostfix } from './shuntingYard';
+import { evaluate } from './calcFunctions';
 
 // buttons
 const zero = new QPushButton();
@@ -301,13 +300,9 @@ button.addEventListener('clicked', () => {
   //infixToPostfix("sin(30)+cos(60)");
   //evalPostfix("30 log 60 ln +");
   //infixToPostfix("ln(56)+log(27)-sin(45/60)");
-  //infixToPostfix("36+-25");
-  //evalPostfix("36 n25 +")
-  //infixToPostfix('---36+25');
-  evalPostfix('nnnn36 25 +');
+  console.log('' + Math.asin(2));
 })*/
-
-rootLayout.addWidget(button);
+//rootLayout.addWidget(button);
 
 
 win.setStyleSheet(
@@ -345,8 +340,8 @@ let userDisplay = '';
 // function that will update the equation on the display
 export function updateDisplay(input) {
   if (input == '<-') {
+    userDisplay = userDisplay.slice(0, -1);
     display.pop();
-    userDisplay.slice(0, -1);
   }
 
   else if (input == 'C') {
@@ -355,7 +350,7 @@ export function updateDisplay(input) {
   }
 
   else if (input == '+/-') {
-    display.push('-');
+    display.push('n');
     userDisplay += '-';
   }
 
@@ -363,7 +358,6 @@ export function updateDisplay(input) {
     userDisplay = '';
     submit(display);
     display = [];
-
   }
 
   else {
@@ -371,23 +365,22 @@ export function updateDisplay(input) {
     userDisplay += input;
   }
 
-  //console.log(display);
   screen.setText(userDisplay);
 }
 
-async function submit(equation) {
-  let expression = '';
-
-  for (let i = 0; i < equation.length; i++) {
-    expression += equation[i];
-  }
-
-  let postfix = infixToPostfix(expression);
-  userDisplay = evalPostfix(postfix);
-  screen.setText(userDisplay);
+function submit(equation) {
+  userDisplay = evaluate(equation);
   console.log(userDisplay);
 
-  //console.log(expression);
+  // Need to figure out this issue. Using arcsin(2) to test it since that number doesn't exist.
+  // ALSO FIGURE OUT MULTIPLICATION JESUS CHRIST
+  if (Number.isNaN(userDisplay)) {
+    screen.setText("Error: Invalid Input")
+  }
+
+  else {
+    screen.setText(userDisplay);
+  }
 }
 
 

@@ -1,7 +1,85 @@
-// Parts of the following file are from the website GeeksForGeeks. 
-// The logic for the basic arithmetic operators is from GeeksForGeeks. All other logic is my own.
+// function to evaluate the current expression
+export function evaluate(expression) {
+    let newExp = '';
 
-// function to set the precedence of an operator. 'c' is a single character
+    // turn the array into a string
+    for (let i = 0; i < expression.length; i++) {
+        newExp += expression[i];
+    }
+
+    // check the expression for validity, convert it to postfix, and evaluate it
+    let valid = checkValdity(newExp);
+    if (valid != "Valid") {
+        console.log("NOT VALID");
+        return valid;
+    }
+
+    let postfix = infixToPostfix(newExp);
+    let answer = evalPostfix(postfix);
+
+    return answer;
+}
+
+// function that checks the expression for errors before evaluating it
+function checkValdity(expression) {
+    // operator at start of expression or closed brackets
+    if (expression[0] == '+' || expression[0] == '-' || expression[0] == '*' || expression[0] == '/'
+        || expression[0] == ')' || expression[0] == ']' || expression[0] == '}') {
+        return "Error: Invalid input";
+    }
+
+    // incorrect brackets
+    // below code snippet uses stack to check if the correct amount of parentheses/brackets are present in the expression
+    let stack = [];
+    for (let i = 0; i < expression.length; i++) {
+        if (expression[i] == '(' || expression[i] == '[' || expression[i] == '{') {
+            stack.push(expression[i]);
+        }
+
+        else if (expression[i] == ')' || expression[i] == ']' || expression[i] == '}') {
+            if (stack[stack.length - 1] == '(' && expression[i] == ')') {
+                stack.pop();
+            }
+
+            else if (stack[stack.length - 1] == '[' && expression[i] == ']') {
+                stack.pop();
+            }
+
+            else if (stack[stack.length - 1] == '{' && expression[i] == '}') {
+                stack.pop();
+            }
+
+            else {
+                return "Error: Invalid input";
+            }
+        }
+    }
+
+    if (stack.length != 0) {
+        return "Error: Invalid input";
+    }
+
+    for (let i = 1; i < expression.length; i++) {
+        // divide by zero error
+        if (expression[i - 1] == '/' && expression[i] == '0') {
+            return "Error: Divide by zero";
+        }
+
+        // in case the expression includes something like 1/(0)
+        if (expression[i - 1] == '/' && (expression[i] == '(' || expression[i] == '[' || expression[i] == '{')) {
+            i++;
+            if (expression[i] == 0 && (expression[i] == ')' || expression[i] == ']' || expression[i] == '}')) {
+                return "Error: Divide by zero";
+            }
+        }
+    }
+
+    return "Valid";
+
+}
+
+// function to set the precedence of an operator. 'c' is a single character.
+// I borrowed some logic for this function from GeeksForGeeks
 function precedence(c) {
     if (c == '^')
         return 3;
@@ -16,7 +94,8 @@ function precedence(c) {
 }
 
 // function to create the postfix notation of an expression. 's' is the expression we are converting and is a String.
-export function infixToPostfix(expression) {
+// I borrowed some logic for this function from GeeksForGeeks.
+function infixToPostfix(expression) {
     // stack and result string to be used.
     let stack = [];
     let result = "";
@@ -27,7 +106,7 @@ export function infixToPostfix(expression) {
 
         // if the first element is a '-', then a negative number will follow.
         // a character of n in the postfixed expression indicates unary negation
-        if (i == 0 && c == '-') {
+        if (i == 0 && c == 'n') {
             //result += c;
             result += 'n';
             continue;
@@ -36,7 +115,7 @@ export function infixToPostfix(expression) {
         // if the previous element is an operator and current element is a '-',
         // then a negative number will follow
         let prev = expression[i - 1];
-        if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == '-') {
+        if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == 'n') {
             //result += c;
             result += 'n';
         }
@@ -65,7 +144,7 @@ export function infixToPostfix(expression) {
 
             // if next character after the parentheses is a '-', then a negative number will follow
             i++;
-            if (expression[i] == '-') {
+            if (expression[i] == 'n') {
                 //result += expression[i];
                 result += 'n';
             }
@@ -124,8 +203,17 @@ export function infixToPostfix(expression) {
 } // end infixtoPostfix
 
 // function to evaluate the expression in postfix notation. Takes in a String
-export function evalPostfix(expression) {
-    // stack and result string
+// I borrowed some logic for this function from GeeksForGeeks.
+function evalPostfix(expression) {
+    if (expression.length == 0) {
+        return 0;
+    }
+
+    if (expression.length == 1) {
+        return expression;
+    }
+
+    // stack used to process expression
     let stack = [];
 
     // loop through the expression. If c is a number, push to stack. 
@@ -145,8 +233,7 @@ export function evalPostfix(expression) {
             let negative = true;
 
             // loops through extracting numbers. Also accounts for multiple presses of the sign button and will present the correct number
-            //while ((c >= '0' && c <= '9') || c == 'n') {
-            while (c != ' ') {
+            while (c != ' ' && i < expression.length) {
                 if (c == 'n') {
                     negative = !negative;
                 }
@@ -171,23 +258,7 @@ export function evalPostfix(expression) {
 
 
         }
-        /*
-        // if c is a negative sign, check if it is with a negative number
-        if (c == '-' && (expression[i + 1] >= '0' && expression[i + 1] <= '9')) {
-            let num = 0;
-            i++
-            c = expression[i]
 
-            // Following loop extracts the chars that make up the current number and converts it to an integer.
-            while (c >= '0' && c <= '9') {
-                num = num * 10 + (c - '0');
-                i++;
-                c = expression[i];
-            }
-            i--;
-            num = num * -1;
-            stack.push(num);
-        }*/
         // if c is a number, push it onto the stack. This ensures multi digit values are caught
         else if (c >= '0' && c <= '9') {
             let num = 0;
@@ -244,9 +315,7 @@ export function evalPostfix(expression) {
                         break;
 
                     case 'arcsin':
-                        console.log(val);
                         stack.push(Math.asin(val));
-                        console.log(stack);
                         break;
 
                     case 'arccos':
@@ -287,6 +356,7 @@ export function evalPostfix(expression) {
                 // val2 is the first value to appear in the below expressions since in subtraction 
                 // and division val2 is the first value.
                 // 200-100 => 200 100 - in postfix notation.
+                console.log(stack);
                 switch (c) {
                     case '+':
                         stack.push(val2 + val1);
@@ -297,10 +367,12 @@ export function evalPostfix(expression) {
                         break;
 
                     case '/':
-                        stack.push(parseInt(val2 / val1, 10));
+                        stack.push(parseFloat(val2 / val1, 10));
                         break;
 
                     case '*':
+                        console.log("val2: " + val2);
+                        console.log("val1: " + val1);
                         stack.push(val2 * val1);
 
                     case '^':
@@ -308,6 +380,7 @@ export function evalPostfix(expression) {
                 }
             }
         }
+        //console.log(stack);
     }
 
     let result = stack.pop();
