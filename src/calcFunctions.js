@@ -230,7 +230,7 @@ function evalPostfix(expression, unit) {
             let negative = true;
 
             // loops through extracting numbers. Also accounts for multiple presses of the sign button and will present the correct number
-            while (c != ' ' && i < expression.length) {
+            while ((c != ' ' && c != '.') && i < expression.length) {
                 if (c == 'n') {
                     negative = !negative;
                 }
@@ -241,6 +241,30 @@ function evalPostfix(expression, unit) {
 
                 i++;
                 c = expression[i];
+            }
+
+            // decimal numbers
+            if (c == '.') {
+                i++;
+                c = expression[i];
+                let decimal = 0.0;
+
+                // find the next whitespace
+                let j = i;
+                while (expression[j] != ' ') {
+                    j++;
+                }
+
+                i = j + 1;
+
+                c = expression[j];
+                while (expression[j] != '.') {
+                    decimal = decimal / 10 + ((c - '0') / 10);
+                    j--;
+                    c = expression[j];
+                }
+
+                num += decimal;
             }
 
             i--;
