@@ -9,7 +9,9 @@ Requirements for project:
 Once you have CMake and Node installed, run the following commands to clone this repository and run it:
 
 git clone https://github.com/rhawkens99/CS480-Scientific-Calculator.git
+
 npm install
+
 npm start
 
 The calculator will appear on your screen and you can use it!
