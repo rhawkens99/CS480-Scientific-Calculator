@@ -87,7 +87,7 @@ arctan.setText('arctan');
 arccsc.setText('arccsc');
 arcsec.setText('arcsec');
 arccot.setText('arccot');
-degToRad.setText('Degrees');
+degToRad.setText('Radians');
 
 ln.setText('ln');
 log.setText('log10');
@@ -136,7 +136,7 @@ arctan.addEventListener('clicked', () => updateDisplay('arctan'));
 arccsc.addEventListener('clicked', () => updateDisplay('arccsc'));
 arcsec.addEventListener('clicked', () => updateDisplay('arcsec'));
 arccot.addEventListener('clicked', () => updateDisplay('arccot'));
-degToRad.addEventListener('clicked', () => updateDisplay('Degrees'));
+degToRad.addEventListener('clicked', () => updateDisplay('degToRad'));
 
 ln.addEventListener('clicked', () => updateDisplay('ln'));
 log.addEventListener('clicked', () => updateDisplay('log10'));
@@ -152,7 +152,6 @@ closeCurlyBrace.addEventListener('clicked', () => updateDisplay('}'));
 const win = new QMainWindow();
 win.setWindowTitle("Scientific Calculator");
 const screen = new QLabel();
-//screen.setText("The Calculator Screen!");
 screen.setText("");
 
 // create widget for screen and widget for buttons. Then place the buttons inside of the button widget
@@ -201,7 +200,7 @@ row2Layout.addWidget(arccos);
 row2Layout.addWidget(degToRad);
 row2Layout.addWidget(ln);
 row2Layout.addWidget(exponent);
-row2Layout.addWidget(plus);
+row2Layout.addWidget(divide);
 
 const row3 = new QWidget();
 const row3Layout = new FlexLayout();
@@ -213,7 +212,7 @@ row3Layout.addWidget(arctan);
 row3Layout.addWidget(seven);
 row3Layout.addWidget(eight);
 row3Layout.addWidget(nine);
-row3Layout.addWidget(subtract);
+row3Layout.addWidget(times);
 
 const row4 = new QWidget();
 const row4Layout = new FlexLayout();
@@ -225,7 +224,7 @@ row4Layout.addWidget(arccsc);
 row4Layout.addWidget(four);
 row4Layout.addWidget(five);
 row4Layout.addWidget(six);
-row4Layout.addWidget(times);
+row4Layout.addWidget(subtract);
 
 const row5 = new QWidget();
 const row5Layout = new FlexLayout();
@@ -237,7 +236,7 @@ row5Layout.addWidget(arcsec);
 row5Layout.addWidget(one);
 row5Layout.addWidget(two);
 row5Layout.addWidget(three);
-row5Layout.addWidget(divide);
+row5Layout.addWidget(plus);
 
 const row6 = new QWidget();
 const row6Layout = new FlexLayout();
@@ -287,24 +286,6 @@ buttonDisplayLayout.addWidget(row9);
 
 rootLayout.addWidget(buttonDisplay);
 
-/*
-// TESTING BUTTON. REMOVE AFTER TESTING STUFF
-const button = new QPushButton();
-//button.setIcon(new QIcon(logo));
-button.setText("Press me!");
-button.addEventListener('clicked', () => {
-  //infixToPostfix("36+(-25*5)-72");
-  //evalPostfix("36 n25 5 * + 72 -");
-  //infixToPostfix("5^(2+2)+2^8-7");
-  //evalPostfix("5 2 2 + ^ 2 8 ^ + 7 -");
-  //infixToPostfix("sin(30)+cos(60)");
-  //evalPostfix("30 log 60 ln +");
-  //infixToPostfix("ln(56)+log(27)-sin(45/60)");
-  console.log('' + Math.asin(2));
-})*/
-//rootLayout.addWidget(button);
-
-
 win.setStyleSheet(
   `
       #myroot {
@@ -336,46 +317,66 @@ win.setStyleSheet(
 
 let display = [];
 let userDisplay = '';
+let degOrRad = 'rad';
 
 // function that will update the equation on the display
 export function updateDisplay(input) {
   if (input == '<-') {
     userDisplay = userDisplay.slice(0, -1);
     display.pop();
+    screen.setText(userDisplay);
   }
 
   else if (input == 'C') {
     display = [];
     userDisplay = '';
+    screen.setText(userDisplay);
   }
 
   else if (input == '+/-') {
     display.push('n');
     userDisplay += '-';
+    screen.setText(userDisplay);
+  }
+
+  else if (input == 'pi') {
+    userDisplay += 'pi';
+    display.push(Math.PI);
+    screen.setText(userDisplay);
+  }
+
+  else if (input == 'degToRad') {
+    if (degOrRad == 'deg') {
+      degOrRad = 'rad';
+      degToRad.setText("Radians");
+    }
+
+    else {
+      degOrRad = 'deg';
+      degToRad.setText("Degrees");
+    }
   }
 
   else if (input == '=') {
     userDisplay = '';
-    submit(display);
+    submit(display, degOrRad);
     display = [];
   }
 
   else {
     display.push(input);
     userDisplay += input;
+    screen.setText(userDisplay);
   }
-
-  screen.setText(userDisplay);
 }
 
-function submit(equation) {
-  userDisplay = evaluate(equation);
-  console.log(userDisplay);
+function submit(equation, unit) {
+  userDisplay = evaluate(equation, unit);
+  //console.log(userDisplay);
 
   // Need to figure out this issue. Using arcsin(2) to test it since that number doesn't exist.
-  // ALSO FIGURE OUT MULTIPLICATION JESUS CHRIST
   if (Number.isNaN(userDisplay)) {
-    screen.setText("Error: Invalid Input")
+    screen.setText('Error: Invalid Input')
   }
 
   else {

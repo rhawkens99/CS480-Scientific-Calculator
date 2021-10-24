@@ -1,5 +1,5 @@
 // function to evaluate the current expression
-export function evaluate(expression) {
+export function evaluate(expression, unit) {
     let newExp = '';
 
     // turn the array into a string
@@ -10,12 +10,11 @@ export function evaluate(expression) {
     // check the expression for validity, convert it to postfix, and evaluate it
     let valid = checkValdity(newExp);
     if (valid != "Valid") {
-        console.log("NOT VALID");
         return valid;
     }
 
     let postfix = infixToPostfix(newExp);
-    let answer = evalPostfix(postfix);
+    let answer = evalPostfix(postfix, unit);
 
     return answer;
 }
@@ -107,7 +106,6 @@ function infixToPostfix(expression) {
         // if the first element is a '-', then a negative number will follow.
         // a character of n in the postfixed expression indicates unary negation
         if (i == 0 && c == 'n') {
-            //result += c;
             result += 'n';
             continue;
         }
@@ -116,12 +114,11 @@ function infixToPostfix(expression) {
         // then a negative number will follow
         let prev = expression[i - 1];
         if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == 'n') {
-            //result += c;
             result += 'n';
         }
 
         // if character is a number, add to result.
-        else if (c >= '0' && c <= '9') {
+        else if (c == '.' || (c >= '0' && c <= '9')) {
             result += c;
         }
 
@@ -204,7 +201,7 @@ function infixToPostfix(expression) {
 
 // function to evaluate the expression in postfix notation. Takes in a String
 // I borrowed some logic for this function from GeeksForGeeks.
-function evalPostfix(expression) {
+function evalPostfix(expression, unit) {
     if (expression.length == 0) {
         return 0;
     }
@@ -255,12 +252,10 @@ function evalPostfix(expression) {
             else {
                 stack.push(num);
             }
-
-
         }
 
         // if c is a number, push it onto the stack. This ensures multi digit values are caught
-        else if (c >= '0' && c <= '9') {
+        else if (c == '.' || (c >= '0' && c <= '9')) {
             let num = 0;
 
             // Following loop extracts the chars that make up the current number and converts it to an integer.
@@ -269,6 +264,31 @@ function evalPostfix(expression) {
                 i++;
                 c = expression[i];
             }
+
+            // handle decimal numbers
+            if (c == '.') {
+                i++;
+                c = expression[i];
+                let decimal = 0.0;
+
+                // find the next whitespace
+                let j = i;
+                while (expression[j] != ' ') {
+                    j++;
+                }
+
+                i = j + 1;
+
+                c = expression[j];
+                while (expression[j] != '.') {
+                    decimal = decimal / 10 + ((c - '0') / 10);
+                    j--;
+                    c = expression[j];
+                }
+
+                num += decimal;
+            }
+            //console.log(num);
             i--;
             stack.push(num);
         }
@@ -288,6 +308,11 @@ function evalPostfix(expression) {
 
                 i--;
                 let val = stack.pop();
+
+                // convert degrees to radians to get proper answer.
+                if (unit == 'deg') {
+                    val = val * (Math.PI / 180);
+                }
 
                 switch (func) {
                     case 'sin':
@@ -356,7 +381,6 @@ function evalPostfix(expression) {
                 // val2 is the first value to appear in the below expressions since in subtraction 
                 // and division val2 is the first value.
                 // 200-100 => 200 100 - in postfix notation.
-                console.log(stack);
                 switch (c) {
                     case '+':
                         stack.push(val2 + val1);
@@ -371,16 +395,15 @@ function evalPostfix(expression) {
                         break;
 
                     case '*':
-                        console.log("val2: " + val2);
-                        console.log("val1: " + val1);
                         stack.push(val2 * val1);
+                        break;
 
                     case '^':
                         stack.push(Math.pow(val2, val1));
+                        break;
                 }
             }
         }
-        //console.log(stack);
     }
 
     let result = stack.pop();
