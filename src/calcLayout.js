@@ -322,9 +322,23 @@ let degOrRad = 'rad';
 // function that will update the equation on the display
 export function updateDisplay(input) {
   if (input == '<-') {
-    userDisplay = userDisplay.slice(0, -1);
-    display.pop();
-    screen.setText(userDisplay);
+    if (display.length == 0) {
+      return;
+    }
+
+    let temp = display[display.length - 1];
+
+    if (temp.length > 1) {
+      userDisplay = userDisplay.slice(0, userDisplay.length - temp.length);
+      display.pop();
+      screen.setText(userDisplay);
+    }
+
+    else {
+      userDisplay = userDisplay.slice(0, -1);
+      display.pop();
+      screen.setText(userDisplay);
+    }
   }
 
   else if (input == 'C') {
@@ -374,7 +388,6 @@ function submit(equation, unit) {
   userDisplay = evaluate(equation, unit);
   //console.log(userDisplay);
 
-  // Need to figure out this issue. Using arcsin(2) to test it since that number doesn't exist.
   if (Number.isNaN(userDisplay)) {
     screen.setText('Error: Invalid Input')
   }
