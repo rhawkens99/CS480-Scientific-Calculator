@@ -1,5 +1,5 @@
 import { QMainWindow, QWidget, FlexLayout, QPushButton, QLabel, } from '@nodegui/nodegui';
-import { evaluate } from './calcFunctions';
+import { evaluate } from './calcFunctions.js';
 
 // buttons
 const zero = new QPushButton();

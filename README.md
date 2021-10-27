@@ -4,6 +4,7 @@ This project was also built on Windows, but the OS should not matter. Node GUI i
 Requirements for project:
 - CMake 3.1 or higher: https://cmake.org/install/
 - Node.js 12 or higher
+- Visual Studio
 - A good Javascript editor, such as Visual Studio Code.
 
 Once you have CMake and Node installed, run the following commands to clone this repository and run it:

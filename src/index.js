@@ -1,4 +1,4 @@
-import { win } from './calcLayout';
+import { win } from './calcLayout.js';
 
 win.show();
 
