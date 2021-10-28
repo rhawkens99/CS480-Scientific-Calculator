@@ -1,4 +1,5 @@
 import { QMainWindow, QWidget, FlexLayout, QPushButton, QLabel, } from '@nodegui/nodegui';
+import { WSAEHOSTDOWN } from 'constants';
 import { evaluate } from './calcFunctions.js';
 
 // buttons
@@ -152,6 +153,7 @@ closeCurlyBrace.addEventListener('clicked', () => updateDisplay('}'));
 const win = new QMainWindow();
 win.setWindowTitle("Scientific Calculator");
 const screen = new QLabel();
+screen.setObjectName("screen");
 screen.setText("");
 
 // create widget for screen and widget for buttons. Then place the buttons inside of the button widget
@@ -289,7 +291,7 @@ rootLayout.addWidget(buttonDisplay);
 win.setStyleSheet(
   `
       #myroot {
-        background-color: #009688;
+        background-color: #142970;
         height: '100%';
         align-items: 'center';
         justify-content: 'center';
@@ -297,15 +299,18 @@ win.setStyleSheet(
       }
 
       #screenDisplay {
-          flex: 1;
+          flex: .5;
           background-color: white;
           width: '100%';
       }    
 
       #buttonDisplay {
-        background-color: orange;
         flex: 1;
         flex-direction: column;
+      }
+
+      #screen {
+        font-size: 14pt;
       }
 
       #row1, #row2, #row3, #row4, #row5, #row6, #row7, #row8, #row9 {
@@ -347,9 +352,25 @@ export function updateDisplay(input) {
     screen.setText(userDisplay);
   }
 
+  // negates the last number entered.
   else if (input == '+/-') {
-    display.push('n');
-    userDisplay += '-';
+    // find where number ends in the array
+    let i = display.length - 1;
+    while ((display[i] >= '0' && display[i] <= '9') && i >= 0) {
+      i--;
+    }
+
+    display.splice(i + 1, 0, 'n');
+
+    // find where number ends in the string
+    i = userDisplay.length - 1;
+    while ((userDisplay[i] >= '0' && userDisplay[i] <= '9') && i >= 0) {
+      i--;
+    }
+
+    let temp = userDisplay.substring(i + 1);
+    userDisplay = userDisplay.slice(0, i + 1);
+    userDisplay += '-' + temp;
     screen.setText(userDisplay);
   }
 
@@ -372,11 +393,13 @@ export function updateDisplay(input) {
   }
 
   else if (input == '=') {
-    userDisplay = '';
     submit(display, degOrRad);
     display = [];
+    display.push('' + userDisplay);
+    console.log(display);
   }
 
+  // if character is number or basic operator
   else {
     display.push(input);
     userDisplay += input;
@@ -386,7 +409,6 @@ export function updateDisplay(input) {
 
 function submit(equation, unit) {
   userDisplay = evaluate(equation, unit);
-  //console.log(userDisplay);
 
   if (Number.isNaN(userDisplay)) {
     screen.setText('Error: Invalid Input')

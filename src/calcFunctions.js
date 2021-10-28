@@ -1,5 +1,9 @@
 // function to evaluate the current expression
 export function evaluate(expression, unit) {
+
+    // check for the possibility of the first value being in scientific notation, and convert it if need be
+    expression[0] = scientificNotation(expression[0]);
+
     let newExp = '';
 
     // turn the array into a string
@@ -18,6 +22,7 @@ export function evaluate(expression, unit) {
 
     return answer;
 }
+
 
 // function that checks the expression for errors before evaluating it
 function checkValdity(expression) {
@@ -77,6 +82,22 @@ function checkValdity(expression) {
 
 }
 
+
+// function to check if scientific notation appears (1.23e+7)
+// this case only happens if the user hits equals, then adds to the result
+function scientificNotation(expression) {
+    for (let i = 0; i < expression.length; i++) {
+        if (expression[i] == 'e') {
+            let temp = expression.slice(i);
+            expression = expression.slice(0, i);
+            temp = temp.slice(2);
+            temp = '*10^' + temp;
+            expression += temp;
+        }
+    }
+    return expression;
+}
+
 // function to set the precedence of an operator. 'c' is a single character.
 // I borrowed some logic for this function from GeeksForGeeks
 function precedence(c) {
@@ -103,7 +124,7 @@ function infixToPostfix(expression) {
     for (let i = 0; i < expression.length; i++) {
         let c = expression[i];
 
-        // if the first element is a '-', then a negative number will follow.
+        // if the first element is a 'n', then a negative number will follow.
         // a character of n in the postfixed expression indicates unary negation
         if (i == 0 && c == 'n') {
             result += 'n';
@@ -265,6 +286,7 @@ function evalPostfix(expression, unit) {
                 }
 
                 num += decimal;
+                console.log(num);
             }
 
             i--;
