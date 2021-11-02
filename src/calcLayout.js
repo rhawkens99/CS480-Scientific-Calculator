@@ -75,7 +75,7 @@ equals.setText('=');
 clear.setText('C');
 backspace.setText('<-');
 
-pi.setText('pi');
+pi.setText('\u03A0');
 sin.setText('sin');
 cos.setText('cos');
 tan.setText('tan');
@@ -124,7 +124,7 @@ equals.addEventListener('clicked', () => updateDisplay('='));
 clear.addEventListener('clicked', () => updateDisplay('C'));
 backspace.addEventListener('clicked', () => updateDisplay('<-'));
 
-pi.addEventListener('clicked', () => updateDisplay('pi'));
+pi.addEventListener('clicked', () => updateDisplay('\u03A0'));
 sin.addEventListener('clicked', () => updateDisplay('sin'));
 cos.addEventListener('clicked', () => updateDisplay('cos'));
 tan.addEventListener('clicked', () => updateDisplay('tan'));
@@ -140,7 +140,7 @@ arccot.addEventListener('clicked', () => updateDisplay('arccot'));
 degToRad.addEventListener('clicked', () => updateDisplay('degToRad'));
 
 ln.addEventListener('clicked', () => updateDisplay('ln'));
-log.addEventListener('clicked', () => updateDisplay('log10'));
+log.addEventListener('clicked', () => updateDisplay('log'));
 
 openParentheses.addEventListener('clicked', () => updateDisplay('('));
 closeParentheses.addEventListener('clicked', () => updateDisplay(')'));
@@ -352,30 +352,95 @@ export function updateDisplay(input) {
     screen.setText(userDisplay);
   }
 
-  // negates the last number entered.
+  // negates the last number/function entered.
   else if (input == '+/-') {
-    // find where number ends in the array
-    let i = display.length - 1;
-    while ((display[i] >= '0' && display[i] <= '9') && i >= 0) {
-      i--;
+
+    if (display.length == 0) {
+      screen.setText('0');
+    }
+    else {
+      if (display[display.length - 1] == '}' || display[display.length - 1] == ']' || display[display.length - 1] == ')') {
+        let i = userDisplay.length - 1;
+        while ((userDisplay[i] != '(' && userDisplay[i] != '[' && userDisplay[i] != '{') && i >= 0) {
+          i--;
+        }
+
+        // check for trig or log functions
+        if (i > 0 && (userDisplay[i - 1] >= 'a' && userDisplay[i - 1] <= 'z')) {
+          i--;
+          while (i >= 0 && (userDisplay[i - 1] >= 'a' && userDisplay[i - 1] <= 'z')) {
+            i--;
+          }
+        }
+
+        let temp = userDisplay.substring(i);
+        userDisplay = userDisplay.slice(0, i);
+        userDisplay += '-' + temp;
+        screen.setText(userDisplay);
+      }
+
+      else {
+        let i = userDisplay.length - 1;
+        while (((userDisplay[i] >= '0' && userDisplay[i] <= '9') || userDisplay[i] == '.') && i >= 0) {
+          i--;
+        }
+
+        let temp = userDisplay.substring(i + 1);
+        userDisplay = userDisplay.slice(0, i + 1);
+        userDisplay += '-' + temp;
+        screen.setText(userDisplay);
+      }
+
+      display.push('~');
+    }
+    /*
+    // if closed parentheses or bracket was the last character entered, find the first open parentheses or bracket. 
+    // error checking occurs after user hits submit, so having messed up brackets is fine at this stage.
+    else if (display[display.length - 1] == '}' || display[display.length - 1] == ']' || display[display.length - 1] == ')') {
+      // go left in array until open parentheses or bracket is found.
+      let i = display.length - 1;
+      while ((display[i] != '(' && display[i] != '[' && display[i] != '{') && i >= 0) {
+        i--;
+      }
+
+      display.splice(i, 0, '~');
+
+      // repeat for string
+      i = userDisplay.length - 1;
+      while ((userDisplay[i] != '(' && userDisplay[i] != '[' && userDisplay[i] != '{') && i >= 0) {
+        i--;
+      }
+
+      let temp = userDisplay.substring(i);
+      userDisplay = userDisplay.slice(0, i);
+      userDisplay += '-' + temp;
+      screen.setText(userDisplay);
     }
 
-    display.splice(i + 1, 0, 'n');
+    else {
+      // find where number ends in the array
+      let i = display.length - 1;
+      while (((display[i] >= '0' && display[i] <= '9') || display[i] == '.') && i >= 0) {
+        i--;
+      }
 
-    // find where number ends in the string
-    i = userDisplay.length - 1;
-    while ((userDisplay[i] >= '0' && userDisplay[i] <= '9') && i >= 0) {
-      i--;
-    }
+      display.splice(i + 1, 0, '~');
 
-    let temp = userDisplay.substring(i + 1);
-    userDisplay = userDisplay.slice(0, i + 1);
-    userDisplay += '-' + temp;
-    screen.setText(userDisplay);
+      // find where number ends in the string
+      i = userDisplay.length - 1;
+      while (((userDisplay[i] >= '0' && userDisplay[i] <= '9') || userDisplay[i] == '.') && i >= 0) {
+        i--;
+      }
+
+      let temp = userDisplay.substring(i + 1);
+      userDisplay = userDisplay.slice(0, i + 1);
+      userDisplay += '-' + temp;
+      screen.setText(userDisplay);
+    }*/
   }
 
-  else if (input == 'pi') {
-    userDisplay += 'pi';
+  else if (input == '\u03A0') {
+    userDisplay += '\u03A0';
     display.push(Math.PI);
     screen.setText(userDisplay);
   }
@@ -393,28 +458,46 @@ export function updateDisplay(input) {
   }
 
   else if (input == '=') {
-    submit(display, degOrRad);
-    display = [];
-    display.push('' + userDisplay);
-    console.log(display);
+    if (display.length == 0) {
+      userDisplay += '0';
+      display.push('0');
+      screen.setText(userDisplay);
+    }
+
+    else {
+      userDisplay = '' + evaluate(display, degOrRad);
+
+      if (userDisplay == 'NaN') {
+        screen.setText('Error: Invalid Input')
+      }
+
+      else if (userDisplay.substring(0, 5) == 'Error') {
+        screen.setText(userDisplay);
+        userDisplay = '';
+        display = [];
+      }
+
+      else {
+        screen.setText(userDisplay);
+        display = [];
+        display.push('' + userDisplay);
+      }
+    }
   }
 
-  // if character is number or basic operator
+  // if character is number, operator, or function
   else {
-    display.push(input);
-    userDisplay += input;
-    screen.setText(userDisplay);
-  }
-}
+    // if operator is trig or log function, add open parentheses to it
+    if (input.length > 1) {
+      display.push(input);
+      display.push('(');
+      userDisplay += input + '(';
+    }
 
-function submit(equation, unit) {
-  userDisplay = evaluate(equation, unit);
-
-  if (Number.isNaN(userDisplay)) {
-    screen.setText('Error: Invalid Input')
-  }
-
-  else {
+    else {
+      display.push(input);
+      userDisplay += input;
+    }
     screen.setText(userDisplay);
   }
 }

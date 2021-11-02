@@ -27,9 +27,21 @@ export function evaluate(expression, unit) {
 // function that checks the expression for errors before evaluating it
 function checkValdity(expression) {
     // operator at start of expression or closed brackets
-    if (expression[0] == '+' || expression[0] == '-' || expression[0] == '*' || expression[0] == '/'
+    if (expression[0] == '+' || expression[0] == '-' || expression[0] == '*' || expression[0] == '/' || expression[0] == '^'
         || expression[0] == ')' || expression[0] == ']' || expression[0] == '}') {
         return "Error: Invalid input";
+    }
+
+    if (expression.length == 1 && expression[0] == '.') {
+        return "Error: Invalid input";
+    }
+
+    // operator leads to closing bracket
+    for (let i = 0; i < expression.length - 1; i++) {
+        if ((expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '^') &&
+            (expression[i + 1] == ')' || expression[i + 1] == ']' || expression[i + 1] == '}')) {
+            return "Error: Invalid input";
+        }
     }
 
     // incorrect brackets
@@ -66,14 +78,14 @@ function checkValdity(expression) {
     for (let i = 1; i < expression.length; i++) {
         // divide by zero error
         if (expression[i - 1] == '/' && expression[i] == '0') {
-            return "Error: Divide by zero";
+            return "Error: Divide By Zero";
         }
 
         // in case the expression includes something like 1/(0)
         if (expression[i - 1] == '/' && (expression[i] == '(' || expression[i] == '[' || expression[i] == '{')) {
             i++;
             if (expression[i] == 0 && (expression[i] == ')' || expression[i] == ']' || expression[i] == '}')) {
-                return "Error: Divide by zero";
+                return "Error: Divide By Zero";
             }
         }
     }
@@ -102,15 +114,17 @@ function scientificNotation(expression) {
 // I borrowed some logic for this function from GeeksForGeeks
 function precedence(c) {
     if (c == '^')
+        return 4;
+    else if (c == '~')
         return 3;
     else if (c == '/' || c == '*')
         return 2;
     else if (c == '+' || c == '-')
         return 1;
     else if (c == '(' || c == '{' || c == '[')
-        return -1;
+        return 0;
     else
-        return 4;
+        return 5;
 }
 
 // function to create the postfix notation of an expression. 's' is the expression we are converting and is a String.
@@ -124,22 +138,22 @@ function infixToPostfix(expression) {
     for (let i = 0; i < expression.length; i++) {
         let c = expression[i];
 
-        // if the first element is a 'n', then a negative number will follow.
-        // a character of n in the postfixed expression indicates unary negation
-        if (i == 0 && c == 'n') {
-            result += 'n';
+        // if the first element is a '~', then a negative number will follow.
+        // a character of ~ in the postfixed expression indicates unary negation
+        /*if (i == 0 && c == '~') {
+            result += '~';
             continue;
         }
 
         // if the previous element is an operator and current element is a '-',
         // then a negative number will follow
         let prev = expression[i - 1];
-        if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == 'n') {
-            result += 'n';
-        }
+        if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == '~') {
+            result += '~';
+        }*/
 
         // if character is a number, add to result.
-        else if (c == '.' || (c >= '0' && c <= '9')) {
+        /*else*/ if (c == '.' || (c >= '0' && c <= '9')) {
             result += c;
         }
 
@@ -162,9 +176,9 @@ function infixToPostfix(expression) {
 
             // if next character after the parentheses is a '-', then a negative number will follow
             i++;
-            if (expression[i] == 'n') {
+            if (expression[i] == '~') {
                 //result += expression[i];
-                result += 'n';
+                result += '~';
             }
 
             else {
@@ -243,8 +257,8 @@ function evalPostfix(expression, unit) {
         if (c == ' ')
             continue;
 
-        // if c is an 'n', then extract the negative number properly
-        if (c == 'n') {
+        // if c is an '~', then extract the negative number properly
+        /*if (c == '~') {
             let num = 0;
             i++;
             c = expression[i];
@@ -252,7 +266,7 @@ function evalPostfix(expression, unit) {
 
             // loops through extracting numbers. Also accounts for multiple presses of the sign button and will present the correct number
             while ((c != ' ' && c != '.') && i < expression.length) {
-                if (c == 'n') {
+                if (c == '~') {
                     negative = !negative;
                 }
 
@@ -272,11 +286,12 @@ function evalPostfix(expression, unit) {
 
                 // find the next whitespace
                 let j = i;
-                while (expression[j] != ' ') {
+                while (expression[j] != ' ' && j < expression.length) {
                     j++;
                 }
 
-                i = j + 1;
+                i = j;
+                j--;
 
                 c = expression[j];
                 while (expression[j] != '.') {
@@ -286,7 +301,6 @@ function evalPostfix(expression, unit) {
                 }
 
                 num += decimal;
-                console.log(num);
             }
 
             i--;
@@ -298,7 +312,7 @@ function evalPostfix(expression, unit) {
             else {
                 stack.push(num);
             }
-        }
+        } */
 
         // if c is a number, push it onto the stack. This ensures multi digit values are caught
         else if (c == '.' || (c >= '0' && c <= '9')) {
@@ -319,11 +333,12 @@ function evalPostfix(expression, unit) {
 
                 // find the next whitespace
                 let j = i;
-                while (expression[j] != ' ') {
+                while (expression[j] != ' ' && j < expression.length) {
                     j++;
                 }
 
-                i = j + 1;
+                i = j;
+                j--;
 
                 c = expression[j];
                 while (expression[j] != '.') {
@@ -339,11 +354,17 @@ function evalPostfix(expression, unit) {
             stack.push(num);
         }
 
-        // If c is an operator, perform the proper calculation. If c corresponds to a trig or log function, pop off only 1 value.
+        // If c is an operator, perform the proper calculation. If c corresponds to a trig function, log function, or negative sign, pop off only 1 value.
         // otherwise, pop off two values.
         else {
+            // negative block
+            if (c == '~') {
+                let val = stack.pop();
+                stack.push(val * -1);
+            }
+
             // trig and log block
-            if ((c >= 'a' && c <= 'z') || (c <= 'A' && c >= 'Z')) {
+            else if ((c >= 'a' && c <= 'z') || (c <= 'A' && c >= 'Z')) {
                 let func = '';
 
                 while ((c >= 'a' && c <= 'z') || (c <= 'A' && c >= 'Z') && (i < expression.length)) {
@@ -437,11 +458,13 @@ function evalPostfix(expression, unit) {
                         break;
 
                     case '/':
-                        stack.push(parseFloat(val2 / val1, 10));
+                        let temp = parseFloat(val2 / val1, 10);
+                        stack.push(Math.round(temp * 1000000) / 1000000);
                         break;
 
                     case '*':
-                        stack.push(val2 * val1);
+                        // round function prevents something like 1.2 * 3 to equal a long decimal. 
+                        stack.push(Math.round((val2 * val1) * 1000000) / 1000000);
                         break;
 
                     case '^':
