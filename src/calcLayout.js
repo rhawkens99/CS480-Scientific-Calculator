@@ -331,20 +331,95 @@ export function updateDisplay(input) {
       return;
     }
 
-    let temp = display[display.length - 1];
+    if (display[display.length - 1] == '~') {
+      // find all '~'
+      let tildeCount = 0;
+      for (let j = 0; j < display.length; j++) {
+        if (display[j] == '~') {
+          tildeCount++;
+        }
+      }
 
-    if (temp.length > 1) {
-      userDisplay = userDisplay.slice(0, userDisplay.length - temp.length);
       display.pop();
-      screen.setText(userDisplay);
+      // if last element is a number, find the negated number and remove the negation
+      if (userDisplay[userDisplay.length - 1] >= '0' && userDisplay[userDisplay.length - 1] <= '9') {
+        // construct entire number (if need be)
+        let i = userDisplay.length - 1;
+        while (userDisplay[i] >= '0' && userDisplay[i] <= '9') {
+          i--;
+        }
+
+        // Replace the number with the positive number
+        let positive = userDisplay.substring(i + 1);
+        userDisplay = userDisplay.slice(0, i);
+        userDisplay += positive;
+        screen.setText(userDisplay);
+      }
+
+      else if (userDisplay[userDisplay.length - 1] == ')' || userDisplay[userDisplay.length - 1] == ']' || userDisplay[userDisplay.length - 1] == '}') {
+        let close = userDisplay[userDisplay.length - 1];
+
+        // find first corresponding opening parentheses or bracket
+        let i = userDisplay.length - 1;
+        let tildeFound = 0;
+        for (i; i >= 0; i--) {
+          // if the amount of tildes in the equation = the amount discovered so far, remove the negative sign
+          if (close == ')' && userDisplay[i] == '(') {
+            tildeFound++;
+            if (tildeCount == tildeFound) {
+              break;
+            }
+          }
+
+          else if (close == ']' && userDisplay[i] == '[') {
+            tildeFound++;
+            if (tildeCount == tildeFound) {
+              break;
+            }
+          }
+
+          else if (close == '}' && userDisplay[i] == '{') {
+            tildeFound++;
+            if (tildeCount == tildeFound) {
+              break;
+            }
+          }
+        }
+
+        // check if function precedes the parentheses
+        if (i > 0 && (userDisplay[i - 1] >= 'a' && userDisplay[i - 1] <= 'z')) {
+          while (i > 0 && (userDisplay[i - 1] >= 'a' && userDisplay[i - 1] <= 'z')) {
+            i--;
+          }
+        }
+
+        // remove negative sign
+        i--;
+        let positive = userDisplay.substring(i + 1);
+        userDisplay = userDisplay.slice(0, i);
+        userDisplay += positive;
+        screen.setText(userDisplay);
+      }
     }
 
     else {
-      userDisplay = userDisplay.slice(0, -1);
-      display.pop();
-      screen.setText(userDisplay);
+      let temp = display[display.length - 1];
+
+      // remove all trig or log function at once
+      if (temp.length > 1) {
+        userDisplay = userDisplay.slice(0, userDisplay.length - temp.length);
+        display.pop();
+        screen.setText(userDisplay);
+      }
+
+      // remove single character
+      else {
+        userDisplay = userDisplay.slice(0, -1);
+        display.pop();
+        screen.setText(userDisplay);
+      }
     }
-  }
+  } // end backspace
 
   else if (input == 'C') {
     display = [];
@@ -358,11 +433,40 @@ export function updateDisplay(input) {
     if (display.length == 0) {
       screen.setText('0');
     }
+
+    // properly add a negative sign in front of a parentheses block
     else {
       if (display[display.length - 1] == '}' || display[display.length - 1] == ']' || display[display.length - 1] == ')') {
         let i = userDisplay.length - 1;
-        while ((userDisplay[i] != '(' && userDisplay[i] != '[' && userDisplay[i] != '{') && i >= 0) {
-          i--;
+        let close = userDisplay[userDisplay.length - 1];
+
+        for (i; i >= 0; i--) {
+          if (close == ')' && userDisplay[i] == '(') {
+            if (i != 0 && userDisplay[i - 1] != '-') {
+              break;
+            }
+            else {
+              continue;
+            }
+          }
+
+          else if (close == ']' && userDisplay[i] == '[') {
+            if (i != 0 && userDisplay[i - 1] != '-') {
+              break;
+            }
+            else {
+              continue;
+            }
+          }
+
+          else if (close == '}' && userDisplay[i] == '{') {
+            if (i != 0 && userDisplay[i - 1] != '-') {
+              break;
+            }
+            else {
+              continue;
+            }
+          }
         }
 
         // check for trig or log functions
@@ -373,12 +477,19 @@ export function updateDisplay(input) {
           }
         }
 
-        let temp = userDisplay.substring(i);
-        userDisplay = userDisplay.slice(0, i);
-        userDisplay += '-' + temp;
-        screen.setText(userDisplay);
+        if (i > 0) {
+          let temp = userDisplay.substring(i);
+          userDisplay = userDisplay.slice(0, i);
+          userDisplay += '-' + temp;
+          screen.setText(userDisplay);
+        }
+        else {
+          userDisplay = '-' + userDisplay;
+          screen.setText(userDisplay);
+        }
       }
 
+      // properly adds a negative sign in front of a number
       else {
         let i = userDisplay.length - 1;
         while (((userDisplay[i] >= '0' && userDisplay[i] <= '9') || userDisplay[i] == '.') && i >= 0) {
@@ -393,52 +504,9 @@ export function updateDisplay(input) {
 
       display.push('~');
     }
-    /*
-    // if closed parentheses or bracket was the last character entered, find the first open parentheses or bracket. 
-    // error checking occurs after user hits submit, so having messed up brackets is fine at this stage.
-    else if (display[display.length - 1] == '}' || display[display.length - 1] == ']' || display[display.length - 1] == ')') {
-      // go left in array until open parentheses or bracket is found.
-      let i = display.length - 1;
-      while ((display[i] != '(' && display[i] != '[' && display[i] != '{') && i >= 0) {
-        i--;
-      }
+  } // end negation
 
-      display.splice(i, 0, '~');
-
-      // repeat for string
-      i = userDisplay.length - 1;
-      while ((userDisplay[i] != '(' && userDisplay[i] != '[' && userDisplay[i] != '{') && i >= 0) {
-        i--;
-      }
-
-      let temp = userDisplay.substring(i);
-      userDisplay = userDisplay.slice(0, i);
-      userDisplay += '-' + temp;
-      screen.setText(userDisplay);
-    }
-
-    else {
-      // find where number ends in the array
-      let i = display.length - 1;
-      while (((display[i] >= '0' && display[i] <= '9') || display[i] == '.') && i >= 0) {
-        i--;
-      }
-
-      display.splice(i + 1, 0, '~');
-
-      // find where number ends in the string
-      i = userDisplay.length - 1;
-      while (((userDisplay[i] >= '0' && userDisplay[i] <= '9') || userDisplay[i] == '.') && i >= 0) {
-        i--;
-      }
-
-      let temp = userDisplay.substring(i + 1);
-      userDisplay = userDisplay.slice(0, i + 1);
-      userDisplay += '-' + temp;
-      screen.setText(userDisplay);
-    }*/
-  }
-
+  // pi block
   else if (input == '\u03A0') {
     userDisplay += '\u03A0';
     display.push(Math.PI);
@@ -483,7 +551,7 @@ export function updateDisplay(input) {
         display.push('' + userDisplay);
       }
     }
-  }
+  } // end equals
 
   // if character is number, operator, or function
   else {

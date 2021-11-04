@@ -123,6 +123,7 @@ function precedence(c) {
         return 1;
     else if (c == '(' || c == '{' || c == '[')
         return 0;
+    // trig and log functions are caught here
     else
         return 5;
 }
@@ -138,22 +139,8 @@ function infixToPostfix(expression) {
     for (let i = 0; i < expression.length; i++) {
         let c = expression[i];
 
-        // if the first element is a '~', then a negative number will follow.
-        // a character of ~ in the postfixed expression indicates unary negation
-        /*if (i == 0 && c == '~') {
-            result += '~';
-            continue;
-        }
-
-        // if the previous element is an operator and current element is a '-',
-        // then a negative number will follow
-        let prev = expression[i - 1];
-        if ((prev == '+' || prev == '-' || prev == '*' || prev == '/') && c == '~') {
-            result += '~';
-        }*/
-
         // if character is a number, add to result.
-        /*else*/ if (c == '.' || (c >= '0' && c <= '9')) {
+        if (c == '.' || (c >= '0' && c <= '9')) {
             result += c;
         }
 
@@ -177,7 +164,6 @@ function infixToPostfix(expression) {
             // if next character after the parentheses is a '-', then a negative number will follow
             i++;
             if (expression[i] == '~') {
-                //result += expression[i];
                 result += '~';
             }
 
@@ -221,7 +207,6 @@ function infixToPostfix(expression) {
             }
             stack.push(c);
         }
-        //console.log(result);
     }
 
     // pop all remaining elements
@@ -230,7 +215,6 @@ function infixToPostfix(expression) {
         result += stack.pop();
     }
 
-    //console.log(result);
     return result;
 } // end infixtoPostfix
 
@@ -256,63 +240,6 @@ function evalPostfix(expression, unit) {
         // space lets the program know that a new number or operator has been reached.
         if (c == ' ')
             continue;
-
-        // if c is an '~', then extract the negative number properly
-        /*if (c == '~') {
-            let num = 0;
-            i++;
-            c = expression[i];
-            let negative = true;
-
-            // loops through extracting numbers. Also accounts for multiple presses of the sign button and will present the correct number
-            while ((c != ' ' && c != '.') && i < expression.length) {
-                if (c == '~') {
-                    negative = !negative;
-                }
-
-                else {
-                    num = num * 10 + (c - '0');
-                }
-
-                i++;
-                c = expression[i];
-            }
-
-            // decimal numbers
-            if (c == '.') {
-                i++;
-                c = expression[i];
-                let decimal = 0.0;
-
-                // find the next whitespace
-                let j = i;
-                while (expression[j] != ' ' && j < expression.length) {
-                    j++;
-                }
-
-                i = j;
-                j--;
-
-                c = expression[j];
-                while (expression[j] != '.') {
-                    decimal = decimal / 10 + ((c - '0') / 10);
-                    j--;
-                    c = expression[j];
-                }
-
-                num += decimal;
-            }
-
-            i--;
-            if (negative) {
-                num = num * -1;
-                stack.push(num);
-            }
-
-            else {
-                stack.push(num);
-            }
-        } */
 
         // if c is a number, push it onto the stack. This ensures multi digit values are caught
         else if (c == '.' || (c >= '0' && c <= '9')) {
@@ -349,7 +276,7 @@ function evalPostfix(expression, unit) {
 
                 num += decimal;
             }
-            //console.log(num);
+
             i--;
             stack.push(num);
         }
@@ -458,12 +385,12 @@ function evalPostfix(expression, unit) {
                         break;
 
                     case '/':
+                        // round function prevents something like 1.2 * 3 to equal a long decimal. 
                         let temp = parseFloat(val2 / val1, 10);
                         stack.push(Math.round(temp * 1000000) / 1000000);
                         break;
 
                     case '*':
-                        // round function prevents something like 1.2 * 3 to equal a long decimal. 
                         stack.push(Math.round((val2 * val1) * 1000000) / 1000000);
                         break;
 
@@ -476,6 +403,5 @@ function evalPostfix(expression, unit) {
     }
 
     let result = stack.pop();
-    //console.log(result);
     return result;
 } // end evalPostFix
