@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Tester</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.0.0/math.js"></script>
+</head>
+
+<body>
+    <script src="./src/calcTester.js" type="module"></script>
+    <h1>Calculator Tester For CS 480</h1>
+    <h2>Created By: Richard DeYoung</h2>
+    <form id="mainForm">
+        <div>
+            <label for="inputNum">Enter the number of tests to generate:</label>
+            <input type="number" name="casesToGenerate" id="casesToGenerate" min="0" required style="margin-left: 0px;">
+        </div>
+        <div>
+            <input type="button" value="Generate Tests" id="submitTestNum"
+                style="margin-top: 25px; margin-bottom: 25px;">
+        </div>
+    </form>
+    <div class="testStats">
+        <p id="totalTests">Total Number of Tests: </p>
+        <p id="validCount">Valid Tests Generated: </p>
+        <p id="invalidCount">Syntactically Invalid Tests Generated: </p>
+        <p id="validEvalCount">Valid Tests Evaluated Correctly by my System: </p>
+        <p id="invalidEvalCount">Syntactically Invalid Tests Caught by my System: </p>
+    </div>
+    <div class="results" style="margin-top: 50px;">
+        <table class="resultsTable" border="1">
+            <thead class="resultsTableHead">
+                <tr class="resultsTableHeadRow">
+                    <th>Expression Number</th>
+                    <th>Expression Generated</th>
+                    <th>Evaluted using Mathjs</th>
+                    <th>Evaluted using Calculator Software</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <noscript>You Need to enable JavaScript to view the full site.</noscript>
+
+</body>
+
+</html>
