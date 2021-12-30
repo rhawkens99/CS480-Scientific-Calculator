@@ -1,0 +1,28 @@
+This testing software was developed using HTML, JavaScript, and Node.js. The external library "http-server" is used. This needs to be installed.
+
+http-server documentation: https://www.npmjs.com/package/http-server
+
+Node.js and npm install: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+To run the code:
+
+Make sure you have Node.js and npm installed.
+
+- First, run 'npm install -g http-server'. You must install http-server globally to be able to launch it. 
+If you have another way to easily lanch a local server (such as Live Server in VSCode) you can skip to the final step. 
+http-server is just an easy way to get a local webserver running.
+
+- Navigate on the command line to this projects directory
+
+- Run the command 'http-server' inside the directory with index.html. This will start a server on localhost. 
+I was able to get this command to run in CMD, but not Windows Powershell or the terminal in VSCode, so I recommend using CMD for this set of commands
+
+- In your browser, navigate to the url: 'http://localhost:8080'
+
+- The webpage will appear and be fully functional!
+
+How to use the website:
+
+Enter in the number of test cases you want to generate. Click "Generate Tests", a number of tests equal to the number entered will be generated. 
+The program will generate a syntatically valid expression, then a syntatically invalid expression. There is a slight chance that the invalid expression will be valid due to the way the program was built.
+The statistics generated are a running total. They will update whenever "Generate Tests" is pressed.
